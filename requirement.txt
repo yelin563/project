@@ -3,6 +3,6 @@ pandas
 folium
 matplotlib
 streamlit_gsheets
-streamlit_folium
+streamlit_folium==0.15.0
 shapely
 scipy
