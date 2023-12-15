@@ -7,3 +7,4 @@ streamlit_folium==0.15.0
 shapely
 scipy
 geopandas
+streamlit-drawable-canvas
