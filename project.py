@@ -38,7 +38,7 @@ st.write(r'''<span style="font-size: 20px;">$\textsf{서울의 미세먼지 측�
 df=pd.read_csv("./saves/미세먼지측정소_서울.csv")
 m = folium.Map([37.55, 127], zoom_start=11)
 
-url='http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=서울&pageNo=1&numOfRows=100&returnType=json&serviceKey=vcTSwRpobfV5kF8pMDucdeWxAfsbllCwPz%2BHAIZFU%2FzppxO7RKRLnW0ldGglLXMxcqexL56uqeD2EOFJFcgevw%3D%3D&ver=1.5'
+url=f'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=서울&pageNo=1&numOfRows=100&returnType=json&serviceKey={st.secrets["airkoreaapi"]}&ver=1.5'
 response = requests.get(url)
 items_list=response.json()["response"]["body"]["items"]
 rdf = json_normalize(items_list)
