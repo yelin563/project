@@ -20,10 +20,10 @@ st.set_page_config(layout="wide")
 
 if 'name' not in st.session_state:
     st.session_state['name']='N'
-if st.session_state['name']=='N':
-    num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
-    if num:
-        st.session_state['name']=num
+
+num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
+if num is not None:
+    st.session_state['name']=num
 st.title("환경탐험가 모드 ON: 대기오염 속으로")
 st.write(r'''<span style="font-size: 20px;">$\textsf{[학습목표] 대기오염 측정소의 역할을 살펴보고 각 위치의 대기오염 정도를 결정해보자.}$</span>''', unsafe_allow_html=True)
 
