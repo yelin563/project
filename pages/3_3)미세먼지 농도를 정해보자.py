@@ -16,6 +16,7 @@ from shapely.geometry import MultiPoint, Point, Polygon
 import geopandas as gpd
 
 from pandas import json_normalize
+st.set_page_config(layout="wide")
 st.header("각 위치의 미세먼지 농도를 정해보자")
 
 st.write("각 위치에 따라 매번 계산을 하여 미세먼지 농도를 구하는 것은 힘든 일이겠죠?")
