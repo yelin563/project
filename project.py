@@ -23,8 +23,9 @@ if 'name' not in st.session_state:
 
 num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
 if num is not None:
-    st.write(f"학번이 {num}(으)로 제출되었습니다. ")
     st.session_state['name']=num
+    st.write(f"학번이 {st.session_state['name']}(으)로 제출되었습니다. ")
+    
 st.title("대기오염 측정소 탐험하기 :earth_asia:")
 st.write(r'''<span style="font-size: 20px;">$\textsf{[학습목표] 대기오염 측정소의 역할을 살펴보고 각 위치의 대기오염 정도를 결정해보자.}$</span>''', unsafe_allow_html=True)
 
