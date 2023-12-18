@@ -33,7 +33,7 @@ st.video('https://www.youtube.com/watch?v=MpAB0-g0k4k', format="video/mp4", star
 
 st.divider()
 
-st.subheader("대기오염 측정소")
+st.subheader("대기오염 측정소 :factory:")
 st.write(r'''<span style="font-size: 20px;">$\textsf{서울의 미세먼지 측정소를 클릭하여 현재 무엇을 측정하고 있는지 살펴봅시다}$</span>''', unsafe_allow_html=True)
 
 df=pd.read_csv("./saves/미세먼지측정소_서울.csv")
