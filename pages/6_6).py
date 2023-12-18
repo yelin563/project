@@ -315,7 +315,7 @@ if map['last_active_drawing'] is not None:
             rdf4 = conn.read(
             worksheet="response4",
             ttl="1s",
-            usecols=[0, 1],
+            usecols=[0, 1,2,3],
             nrows=100
             )  
             rdf4 = rdf4.dropna(axis=0)
