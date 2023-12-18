@@ -22,7 +22,7 @@ if 'name' not in st.session_state:
     st.session_state['name']='N'
 
 num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
-if num is not None:
+if len(num)>2:
     st.session_state['name']=num
     st.write(f"학번이 {st.session_state['name']}(으)로 제출되었습니다. ")
     
