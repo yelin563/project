@@ -28,7 +28,7 @@ with col1:
 with col2:
     st.image('./saves/marker1.png')
 with col3:
-    st.write(r'''<span style="font-size: 16px;">$\textsf{가 측정한 수치를 그대로 선택하는 방법으로 각 위치}$</span>''', unsafe_allow_html=True)
+    st.write(r'''<span style="font-size: 16px;">$\textsf{가 측정한 수치들 중에서 선택하는 방법으로 각 위치}$</span>''', unsafe_allow_html=True)
 with col4:
     st.image('./saves/marker2.png')
 with col5:
