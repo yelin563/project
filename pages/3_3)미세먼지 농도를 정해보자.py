@@ -22,7 +22,7 @@ st.header("각 위치의 미세먼지 농도를 정해보자")
 st.write("각 위치에 따라 매번 계산을 하여 미세먼지 농도를 구하는 것은 힘든 일이겠죠?")
 
 
-col1, col2, col3, col4,col5=st.columns([3,1,10,1,10])
+col1, col2, col3, col4,col5=st.columns([3,1,11,1,10])
 with col1:
     st.write(r'''<span style="font-size: 16px;">$\textsf{주변 측정소}$</span>''', unsafe_allow_html=True)
 with col2:
