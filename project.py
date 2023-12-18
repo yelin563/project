@@ -21,7 +21,7 @@ st.set_page_config(layout="wide")
 if 'name' not in st.session_state:
     st.session_state['name']='N'
 if st.session_state['name']=='N':
-    num=st.text_input('학번이름을 입력해주세요')
+    num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
     if num:
         st.session_state['name']=num
 st.title("환경탐험가 모드 ON: 대기오염 속으로")
