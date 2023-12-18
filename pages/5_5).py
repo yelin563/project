@@ -69,7 +69,7 @@ col3,col4=st.columns([4,1])
 with col3:
     st.write('2) 두 점 (1,5), (4,2)을 이은 선분의 수직이등분선은?')
 
-    canvas_res = st_canvas(drawing_mode='freedraw',update_streamlit=True,stroke_width=5,background_image=Image.open('./saves/좌표2.png'),width=800,key="canvas2")
+    canvas_res = st_canvas(stroke_width=stroke_width,stroke_color=stroke_color,drawing_mode=drawing_mode,update_streamlit=True,background_image=Image.open('./saves/좌표2.png'),width=800,key="canvas2")
 with col4:
     st.write('y=ax+b에서 a와 b를<br>입력하세요', unsafe_allow_html=True)
     a2=st.number_input('a', min_value=-5.0, max_value=5.0, step=0.5,key='a2')
