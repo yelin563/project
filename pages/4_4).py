@@ -57,7 +57,7 @@ if canvas_res.json_data is not None:
                 if 250 < obj['top'].iloc[1] < 300 and 250<obj['left'].iloc[1] < 320  and obj['width'].iloc[1]< 7 and 200<obj['height'].iloc[1] :
                     st.write('B와 C 사이의 기준선을 잘 나타냈습니다! 이제 C와 A 사이의 기준선을 그려주세요')
                     if len(obj)>2:
-                        if 60 < obj['top'].iloc[2] < 110 and 300<obj['left'].iloc[2] <390  and 120<obj['width'].iloc[2]< 180 and 160<obj['height'].iloc[2]<220 :
+                        if 60 < obj['top'].iloc[2] < 110 and 300<obj['left'].iloc[2] <390  and 120<obj['width'].iloc[2]< 200 and 160<obj['height'].iloc[2]<220 :
                             st.session_state['drawline']+=1
                             st.write('영역을 모두 잘 나눴네요!')
                             if st.session_state['drawline']==1:
