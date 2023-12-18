@@ -24,6 +24,7 @@ if 'name' not in st.session_state:
 num=st.text_input('학번이름을 입력해주세요 ex)21246윤예린')
 if len(num)>2:
     st.session_state['name']=num
+if st.session_state['name']!="N":
     st.write(f"학번이 {st.session_state['name']}(으)로 제출되었습니다. ")
     
 st.title("대기오염 측정소 탐험하기 :earth_asia:")
