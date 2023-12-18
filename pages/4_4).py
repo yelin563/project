@@ -51,7 +51,7 @@ if canvas_res.json_data is not None:
         obj[c] = obj[c].astype("str")
     st.dataframe(obj)
     if len(obj)>0:
-        if 160 < obj['top'].iloc[0] < 200 and obj['left'].iloc[0] < 200  and obj['height'].iloc[0] < 7 and 240<obj['width'].iloc[0] < 300 : 
+        if 160 < obj['top'].iloc[0] < 200 and obj['left'].iloc[0] < 200  and obj['height'].iloc[0] < 7 and 240<obj['width'].iloc[0] < 320 : 
             st.write('A와 B 사이의 기준선을 잘 나타냈습니다! 이제 B와 C 사이의 기준선을 그려주세요.')
             if len(obj)>1:
                 if 250 < obj['top'].iloc[1] < 300 and 250<obj['left'].iloc[1] < 320  and obj['width'].iloc[1]< 7 and 200<obj['height'].iloc[1] :
