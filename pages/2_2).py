@@ -25,7 +25,7 @@ url=f'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getCtprvnRltmMesureDns
 response = requests.get(url)
 items_list=response.json()["response"]["body"]["items"]
 rdf = json_normalize(items_list)
-sch_loc=[37.4714269, 126.924733]
+sch_loc=[37.4907295, 127.0533366]
 m = folium.Map(sch_loc, zoom_start=13)
 
 Marker(sch_loc,popup='우리학교',icon=folium.Icon(color='blue',icon='star')).add_to(m)
