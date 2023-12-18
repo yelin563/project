@@ -63,7 +63,7 @@ with col2:
         if a1==-1 and b1==6:
             st.write('맞아요! 2) 문제로 넘어가세요')
         else:
-            st.write('다시 확인해봅시다. <br>각 좌표의 평균을 이용하여 중점을 구하고, <br>좌표의 차이로 기울기를 구해야해요', unsafe_allow_html=True)
+            st.write('다시 확인해봅시다. <br>좌표의 차이로 기울기를 구해야해요', unsafe_allow_html=True)
 st.divider()
 col3,col4=st.columns([4,1])
 with col3:
