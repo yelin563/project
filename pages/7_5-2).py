@@ -198,7 +198,7 @@ if st.button('분석 실행') and 'new_location' in st.session_state:
     updated_map = create_map_with_voronoi(points, [st.session_state['new_location'][1], st.session_state['new_location'][0]])
     st.session_state.map = updated_map
     st.session_state['run'] = 'Y'
-    st.experimental_rerun()
+    st.rerun()
 
 # 면적 계산 및 결과 표시
 if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
