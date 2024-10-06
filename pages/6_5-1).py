@@ -153,35 +153,4 @@ initial_map = create_voronoi_map(points)
 df.apply(lambda row:Marker(location=[row["병원위도"],row["병원경도"]],icon=folium.Icon(color='green'),
                             popup= row['기관명']).add_to(initial_map),axis=1)
 map = st_folium(initial_map, width=800, use_container_width=True)
-    a=st.number_input('새로운 측정소의 미세먼지 농도를 가상으로 설정하고 면적과 미세먼지 농도 데이터를 분석해봅시다.')
-    if a:
-        a=float(a)
-        t1, t2, t3= st.tabs(['전체데이터','면적','연평균'])
-        
-        newdf_polygons.loc[newdf_polygons['측정소명']=='새로운측정소', '연평균'] = a
-        newdf_polygons.set_index('측정소명', inplace=True)
-        with t1:
-            st.dataframe(newdf_polygons[['면적','연평균']],width=600)
-        with t2:
-            col1, col2 = st.columns([3,1])
-            with col1:
-                st.bar_chart(data=newdf_polygons['면적'])
-                
-            with col2:
-                m1=newdf_polygons['면적'].mean()
-                s1=newdf_polygons['면적'].std()
-                st.write(f'면적의 평균: {m1:.2f}')
-                st.write(f'면적의 표준편차: {s1:.2f}')
-        with t3:
-            col1, col2 = st.columns([3,1])
-            with col1:
-                
-                st.bar_chart(data=newdf_polygons['연평균'])
-            with col2:
-                m1=newdf_polygons['연평균'].mean()
-                s1=newdf_polygons['연평균'].std()
-                st.write(f'연평균의 평균: {m1:.2f}')
-                st.write(f'연평균의 표준편차: {s1:.2f}')
-        
-
-        
+   
