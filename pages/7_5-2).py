@@ -7,7 +7,7 @@ from streamlit_folium import st_folium, folium_static
 import matplotlib
 import matplotlib.pyplot as plt
 from folium.plugins import Draw
-from streamlit_gsheets import GSheetsConnection
+
 import requests
 from branca.colormap import linear
 from scipy.spatial import Voronoi, voronoi_plot_2d
