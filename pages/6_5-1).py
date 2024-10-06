@@ -152,5 +152,5 @@ points = df[['병원위도', '병원경도']].to_numpy().astype(float)
 initial_map = create_voronoi_map(points)
 df.apply(lambda row:Marker(location=[row["병원위도"],row["병원경도"]],icon=folium.Icon(color='green'),
                             popup= row['기관명']).add_to(initial_map),axis=1)
-map = st_folium(initial_map, width=800, use_container_width=True)
+map = st_folium(initial_map, width=800)
    
