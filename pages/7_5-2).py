@@ -48,7 +48,7 @@ def voronoi_finite_polygons_2d(vor, radius=None):
 
     center = vor.points.mean(axis=0)
     if radius is None:
-        radius = np.ptp(vor.points, axis=0).max()
+        radius = np.ptp(vor.points) 
 
     # Construct a map containing all ridges for a given point
     all_ridges = {}
