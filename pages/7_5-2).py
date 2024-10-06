@@ -175,7 +175,7 @@ def create_map_with_voronoi(points, new_point=None):
 
 # 초기 지도 생성
 initial_map = create_map_with_voronoi(points)
-map_data = st_folium(initial_map, width=800, height=600)
+# map_data = st_folium(initial_map, width=800, height=600)
 # Streamlit의 session_state를 사용하여 지도 상태를 유지
 if 'map' not in st.session_state:
     st.session_state.map = initial_map
