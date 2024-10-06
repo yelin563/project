@@ -199,7 +199,7 @@ if st.button('분석 실행') and 'new_location' in st.session_state:
     st.session_state.map = updated_map
     st.session_state['run'] = 'Y'
     st.experimental_rerun()
-
+'''
 # 면적 계산 및 결과 표시
 if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
     new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
@@ -240,3 +240,4 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
             st.write(f'면적의 평균: {m1:.2f}')
             st.write(f'면적의 표준편차: {s1:.2f}')
         
+'''
