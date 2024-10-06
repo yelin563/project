@@ -186,9 +186,10 @@ if 'run' not in st.session_state:
 map_data = st_folium(st.session_state.map, width=800, height=600)
 
 # 새로운 좌표를 세션에 저장
-if map_data['last_active_drawing']:
-    st.session_state['new_location'] = map_data['last_active_drawing']['geometry']['coordinates']
-    st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
+if map_data:
+    if map_data['last_active_drawing']:
+        st.session_state['new_location'] = map_data['last_active_drawing']['geometry']['coordinates']
+        st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
 
 # 실행 버튼 추가
 if st.button('분석 실행') and 'new_location' in st.session_state:
