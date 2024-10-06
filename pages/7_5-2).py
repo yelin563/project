@@ -175,7 +175,7 @@ def create_map_with_voronoi(points, new_point=None):
 
 # 초기 지도 생성
 initial_map = create_map_with_voronoi(points)
-
+'''
 # Streamlit의 session_state를 사용하여 지도 상태를 유지
 if 'map' not in st.session_state:
     st.session_state.map = initial_map
@@ -199,7 +199,7 @@ if st.button('분석 실행') and 'new_location' in st.session_state:
     st.session_state.map = updated_map
     st.session_state['run'] = 'Y'
     st.experimental_rerun()
-'''
+
 # 면적 계산 및 결과 표시
 if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
     new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
