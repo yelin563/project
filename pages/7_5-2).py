@@ -184,7 +184,7 @@ if 'run' not in st.session_state:
 # 지도 표시
 
 # folium 지도 데이터를 st_folium으로 받음
-map_data = st_folium(st.session_state.map, width=800, height=600)
+map_data = folium.Map(st.session_state.map, width=800, height=600)
 
 # 새로운 좌표를 세션에 저장
 if map_data:
