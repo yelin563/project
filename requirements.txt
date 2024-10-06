@@ -1,9 +1,9 @@
-streamlit
+streamlit==1.32.2
 pandas
-folium
+folium==0.16.0
 matplotlib
 st-gsheets-connection
-streamlit_folium==0.15.0
+streamlit_folium==0.18.0
 shapely
 scipy
 geopandas
