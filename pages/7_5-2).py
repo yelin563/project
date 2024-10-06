@@ -159,6 +159,46 @@ def create_map_with_voronoi(points, new_point=None):
     
     return m
 
+@st.cache_resource
+def create_static_map(points, new_point=None):
+    fig, ax = plt.subplots(figsize=(10, 10))
+    
+    # Plot Seoul boundary
+    seoul_gdf = gpd.GeoDataFrame(geometry=[seoul_poly], crs="EPSG:4326")
+    seoul_gdf.plot(ax=ax, color='none', edgecolor='black')
+    
+    # Create Voronoi diagram
+    if new_point is not None:
+        points = np.vstack([points, new_point])
+    
+    vor = Voronoi(points)
+    regions, vertices = voronoi_finite_polygons_2d(vor)
+    
+    # Plot Voronoi polygons
+    for region in regions:
+        polygon = vertices[region]
+        p1 = Polygon(polygon)
+        p = seoul_poly.intersection(p1)
+        if not p.is_empty:
+            if p.type == 'MultiPolygon':
+                for poly in p.geoms:
+                    ax.fill(*poly.exterior.xy, alpha=0.3)
+            else:
+                ax.fill(*p.exterior.xy, alpha=0.3)
+    
+    # Plot points
+    ax.scatter(points[:, 1], points[:, 0], c='red', s=50)
+    
+    if new_point is not None:
+        ax.scatter(new_point[1], new_point[0], c='green', s=100, marker='*')
+    
+    ax.set_xlim(seoul_poly.bounds[0], seoul_poly.bounds[2])
+    ax.set_ylim(seoul_poly.bounds[1], seoul_poly.bounds[3])
+    ax.set_aspect('equal')
+    ax.set_title('노원구 응급실 위치와 Voronoi 다이어그램')
+    
+    return fig
+
 # 초기 포인트 설정
 points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
 
@@ -172,38 +212,53 @@ with col1:
 with col2:
     st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
 
-# 디버그 정보 표시
-st.write("Debug: Creating initial map")
+# 지도 유형 선택
+map_type = st.radio("지도 유형 선택:", ("인터랙티브 지도", "정적 이미지 지도"))
 
-# 지도 생성 및 표시
-map_obj = create_map_with_voronoi(points)
-st.write("Debug: Map object created")
+if map_type == "인터랙티브 지도":
+    st.write("Debug: Creating interactive map")
+    map_obj = create_map_with_voronoi(points)
+    st.write("Debug: Map object created")
 
-try:
-    folium_static(map_obj, width=800, height=600)
-    st.write("Debug: Map displayed successfully")
-except Exception as e:
-    st.error(f"Error displaying map: {str(e)}")
+    try:
+        folium_static(map_obj, width=800, height=600)
+        st.write("Debug: Interactive map displayed successfully")
+    except Exception as e:
+        st.error(f"Error displaying interactive map: {str(e)}")
+else:
+    st.write("Debug: Creating static map")
+    fig = create_static_map(points)
+    st.write("Debug: Static map created")
 
-# 새로운 좌표 처리를 위한 placeholder
-new_location_placeholder = st.empty()
+    try:
+        st.pyplot(fig)
+        st.write("Debug: Static map displayed successfully")
+    except Exception as e:
+        st.error(f"Error displaying static map: {str(e)}")
+
+# 새로운 좌표 처리를 위한 입력 필드
+new_location = st.text_input("새로운 측정소의 위도,경도를 입력하세요 (예: 37.6456143,127.0737463)")
 
 # 실행 버튼 추가
 if st.button('분석 실행'):
     st.write("Debug: Analysis button clicked")
-    new_location = new_location_placeholder.text_input("새로운 측정소의 위도,경도를 입력하세요 (예: 37.6456143,127.0737463)")
     
     if new_location:
         try:
             lat, lon = map(float, new_location.split(','))
             st.write(f"Debug: New location parsed - Lat: {lat}, Lon: {lon}")
 
-            # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
-            updated_map = create_map_with_voronoi(points, [lat, lon])
-            st.write("Debug: Updated map created")
-            
-            folium_static(updated_map, width=800, height=600)
-            st.write("Debug: Updated map displayed")
+            # 새로운 측정소를 포함한 지도 생성 및 시각화
+            if map_type == "인터랙티브 지도":
+                updated_map = create_map_with_voronoi(points, [lat, lon])
+                st.write("Debug: Updated interactive map created")
+                folium_static(updated_map, width=800, height=600)
+                st.write("Debug: Updated interactive map displayed")
+            else:
+                updated_fig = create_static_map(points, [lat, lon])
+                st.write("Debug: Updated static map created")
+                st.pyplot(updated_fig)
+                st.write("Debug: Updated static map displayed")
 
             # 면적 계산 및 결과 표시
             new_point = [lat, lon]
