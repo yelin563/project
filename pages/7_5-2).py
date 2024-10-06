@@ -172,53 +172,76 @@ with col1:
 with col2:
     st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
 
+# 디버그 정보 표시
+st.write("Debug: Creating initial map")
+
 # 지도 생성 및 표시
 map_obj = create_map_with_voronoi(points)
-map_data = st_folium(map_obj, width=800, height=600)
+st.write("Debug: Map object created")
 
-# 새로운 좌표 처리
-new_location = None
-if map_data['last_active_drawing']:
-    new_location = map_data['last_active_drawing']['geometry']['coordinates']
-    st.write('새로운 측정소의 좌표:', new_location[1], new_location[0])
+try:
+    folium_static(map_obj, width=800, height=600)
+    st.write("Debug: Map displayed successfully")
+except Exception as e:
+    st.error(f"Error displaying map: {str(e)}")
+
+# 새로운 좌표 처리를 위한 placeholder
+new_location_placeholder = st.empty()
 
 # 실행 버튼 추가
-if st.button('분석 실행') and new_location:
-    # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
-    updated_map = create_map_with_voronoi(points, [new_location[1], new_location[0]])
-    st_folium(updated_map, width=800, height=600)
-
-    # 면적 계산 및 결과 표시
-    new_point = [new_location[1], new_location[0]]
-    vor = Voronoi(np.vstack([points, new_point]))
-    regions, vertices = voronoi_finite_polygons_2d(vor)
+if st.button('분석 실행'):
+    st.write("Debug: Analysis button clicked")
+    new_location = new_location_placeholder.text_input("새로운 측정소의 위도,경도를 입력하세요 (예: 37.6456143,127.0737463)")
     
-    data_list = []
-    for i, region in enumerate(regions):
-        polygon = vertices[region]
-        p1 = Polygon(polygon)
-        p = seoul_poly.intersection(p1)
-        area = p.area if not p.is_empty else 0
-        data_list.append({'측정소명': df['기관명'].iloc[i] if i < len(df) else '새로운측정소', '면적': area * 10014})
+    if new_location:
+        try:
+            lat, lon = map(float, new_location.split(','))
+            st.write(f"Debug: New location parsed - Lat: {lat}, Lon: {lon}")
 
-    newdf_polygons = pd.DataFrame(data_list)
-    newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
-    newdf_polygons.set_index('측정소명', inplace=True)
-    
-    # 결과 표시
-    t1, t2 = st.tabs(['전체데이터', '면적'])
-    
-    with t1:
-        st.dataframe(newdf_polygons[['면적']], width=600)
-        st.write('새로운 측정소의 좌표:', new_location[1], new_location[0])
-
-    with t2:
-        col1, col2 = st.columns([3,1])
-        with col1:
-            st.bar_chart(data=newdf_polygons['면적'])
+            # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
+            updated_map = create_map_with_voronoi(points, [lat, lon])
+            st.write("Debug: Updated map created")
             
-        with col2:
-            m1 = newdf_polygons['면적'].mean()
-            s1 = newdf_polygons['면적'].std()
-            st.write(f'면적의 평균: {m1:.2f}')
-            st.write(f'면적의 표준편차: {s1:.2f}')
+            folium_static(updated_map, width=800, height=600)
+            st.write("Debug: Updated map displayed")
+
+            # 면적 계산 및 결과 표시
+            new_point = [lat, lon]
+            vor = Voronoi(np.vstack([points, new_point]))
+            regions, vertices = voronoi_finite_polygons_2d(vor)
+            
+            data_list = []
+            for i, region in enumerate(regions):
+                polygon = vertices[region]
+                p1 = Polygon(polygon)
+                p = seoul_poly.intersection(p1)
+                area = p.area if not p.is_empty else 0
+                data_list.append({'측정소명': df['기관명'].iloc[i] if i < len(df) else '새로운측정소', '면적': area * 10014})
+
+            newdf_polygons = pd.DataFrame(data_list)
+            newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
+            newdf_polygons.set_index('측정소명', inplace=True)
+            
+            # 결과 표시
+            t1, t2 = st.tabs(['전체데이터', '면적'])
+            
+            with t1:
+                st.dataframe(newdf_polygons[['면적']], width=600)
+                st.write('새로운 측정소의 좌표:', lat, lon)
+
+            with t2:
+                col1, col2 = st.columns([3,1])
+                with col1:
+                    st.bar_chart(data=newdf_polygons['면적'])
+                    
+                with col2:
+                    m1 = newdf_polygons['면적'].mean()
+                    s1 = newdf_polygons['면적'].std()
+                    st.write(f'면적의 평균: {m1:.2f}')
+                    st.write(f'면적의 표준편차: {s1:.2f}')
+        except Exception as e:
+            st.error(f"Error processing new location: {str(e)}")
+    else:
+        st.warning("새로운 측정소의 위치를 입력해주세요.")
+
+st.write("Debug: End of script")
