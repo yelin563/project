@@ -117,10 +117,24 @@ def load_data():
 
 sido, seoul_poly, df = load_data()
 
-@st.cache_resource
+st.header('노원구 응급실로 그린 보로노이 다이어그램')
+st.subheader('만약 노원구에 새로운 응급실을 만들 수 있다면 어디에 세워야 가장 효과적일까요?')
+st.subheader('새로운 응급실 위치를 정해봅시다.')
+
+col1, col2 = st.columns([1, 20])
+with col1:
+    st.image('./saves/marker.png')
+with col2:
+    st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
+
+# 초기 포인트 설정
+points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
+# 서울 중심 좌표 설정
+seoul_center = [37.6456143, 127.0737463]
 def create_map_with_voronoi(points, new_point=None):
-    m = folium.Map(location=[37.6456143, 127.0737463], zoom_start=12)
+    m = folium.Map(location=seoul_center, zoom_start=12)
     
+    # Draw 플러그인 추가
     draw = Draw(
         draw_options={
             'polyline': False,
@@ -159,144 +173,70 @@ def create_map_with_voronoi(points, new_point=None):
     
     return m
 
-@st.cache_resource
-def create_static_map(points, new_point=None):
-    fig, ax = plt.subplots(figsize=(10, 10))
-    
-    # Plot Seoul boundary
-    seoul_gdf = gpd.GeoDataFrame(geometry=[seoul_poly], crs="EPSG:4326")
-    seoul_gdf.plot(ax=ax, color='none', edgecolor='black')
-    
-    # Create Voronoi diagram
-    if new_point is not None:
-        points = np.vstack([points, new_point])
-    
-    vor = Voronoi(points)
+# 초기 지도 생성
+initial_map = create_map_with_voronoi(points)
+# map_data = st_folium(initial_map, width=800, height=600)
+# Streamlit의 session_state를 사용하여 지도 상태를 유지
+if 'map' not in st.session_state:
+    st.session_state.map = initial_map
+if 'run' not in st.session_state:
+    st.session_state.run = 'N'
+# 지도 표시
+
+# folium 지도 데이터를 st_folium으로 받음
+map_data = st_folium(st.session_state.map, width=800, height=600)
+
+# 새로운 좌표를 세션에 저장
+if map_data:
+    if map_data['last_active_drawing']:
+        st.session_state['new_location'] = map_data['last_active_drawing']['geometry']['coordinates']
+        st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
+
+# 실행 버튼 추가
+if st.button('분석 실행') and 'new_location' in st.session_state:
+    # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
+    updated_map = create_map_with_voronoi(points, [st.session_state['new_location'][1], st.session_state['new_location'][0]])
+    st.session_state.map = updated_map
+    st.session_state['run'] = 'Y'
+    st.experimental_rerun()
+
+# 면적 계산 및 결과 표시
+if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
+    new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
+    vor = Voronoi(np.vstack([points, new_point]))
     regions, vertices = voronoi_finite_polygons_2d(vor)
     
-    # Plot Voronoi polygons
-    for region in regions:
+    data_list = []
+    for i, region in enumerate(regions):
         polygon = vertices[region]
         p1 = Polygon(polygon)
         p = seoul_poly.intersection(p1)
-        if not p.is_empty:
-            if p.type == 'MultiPolygon':
-                for poly in p.geoms:
-                    ax.fill(*poly.exterior.xy, alpha=0.3)
-            else:
-                ax.fill(*p.exterior.xy, alpha=0.3)
+        area = p.area if not p.is_empty else 0
+        data_list.append({'측정소명': df['기관명'].iloc[i] if i < len(df) else '새로운측정소', '면적': area * 10014})
+
+    newdf_polygons = pd.DataFrame(data_list)
+    newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
     
-    # Plot points
-    ax.scatter(points[:, 1], points[:, 0], c='red', s=50)
     
-    if new_point is not None:
-        ax.scatter(new_point[1], new_point[0], c='green', s=100, marker='*')
+
+    # 측정소명을 인덱스로 설정
+    newdf_polygons.set_index('측정소명', inplace=True)
     
-    ax.set_xlim(seoul_poly.bounds[0], seoul_poly.bounds[2])
-    ax.set_ylim(seoul_poly.bounds[1], seoul_poly.bounds[3])
-    ax.set_aspect('equal')
-    ax.set_title('노원구 응급실 위치와 Voronoi 다이어그램')
+    # 결과 표시
+    t1, t2 = st.tabs(['전체데이터', '면적'])
     
-    return fig
+    with t1:
+        st.dataframe(newdf_polygons[['면적']], width=600)
+        st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
 
-# 초기 포인트 설정
-points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
-
-st.header('노원구 응급실로 그린 보로노이 다이어그램')
-st.subheader('만약 노원구에 새로운 응급실을 만들 수 있다면 어디에 세워야 가장 효과적일까요?')
-st.subheader('새로운 응급실 위치를 정해봅시다.')
-
-col1, col2 = st.columns([1, 20])
-with col1:
-    st.image('./saves/marker.png')
-with col2:
-    st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
-
-# 지도 유형 선택
-map_type = st.radio("지도 유형 선택:", ("인터랙티브 지도", "정적 이미지 지도"))
-
-if map_type == "인터랙티브 지도":
-    st.write("Debug: Creating interactive map")
-    map_obj = create_map_with_voronoi(points)
-    st.write("Debug: Map object created")
-
-    try:
-        folium_static(map_obj, width=800, height=600)
-        st.write("Debug: Interactive map displayed successfully")
-    except Exception as e:
-        st.error(f"Error displaying interactive map: {str(e)}")
-else:
-    st.write("Debug: Creating static map")
-    fig = create_static_map(points)
-    st.write("Debug: Static map created")
-
-    try:
-        st.pyplot(fig)
-        st.write("Debug: Static map displayed successfully")
-    except Exception as e:
-        st.error(f"Error displaying static map: {str(e)}")
-
-# 새로운 좌표 처리를 위한 입력 필드
-new_location = st.text_input("새로운 측정소의 위도,경도를 입력하세요 (예: 37.6456143,127.0737463)")
-
-# 실행 버튼 추가
-if st.button('분석 실행'):
-    st.write("Debug: Analysis button clicked")
-    
-    if new_location:
-        try:
-            lat, lon = map(float, new_location.split(','))
-            st.write(f"Debug: New location parsed - Lat: {lat}, Lon: {lon}")
-
-            # 새로운 측정소를 포함한 지도 생성 및 시각화
-            if map_type == "인터랙티브 지도":
-                updated_map = create_map_with_voronoi(points, [lat, lon])
-                st.write("Debug: Updated interactive map created")
-                folium_static(updated_map, width=800, height=600)
-                st.write("Debug: Updated interactive map displayed")
-            else:
-                updated_fig = create_static_map(points, [lat, lon])
-                st.write("Debug: Updated static map created")
-                st.pyplot(updated_fig)
-                st.write("Debug: Updated static map displayed")
-
-            # 면적 계산 및 결과 표시
-            new_point = [lat, lon]
-            vor = Voronoi(np.vstack([points, new_point]))
-            regions, vertices = voronoi_finite_polygons_2d(vor)
+    with t2:
+        col1, col2 = st.columns([3,1])
+        with col1:
+            st.bar_chart(data=newdf_polygons['면적'])
             
-            data_list = []
-            for i, region in enumerate(regions):
-                polygon = vertices[region]
-                p1 = Polygon(polygon)
-                p = seoul_poly.intersection(p1)
-                area = p.area if not p.is_empty else 0
-                data_list.append({'측정소명': df['기관명'].iloc[i] if i < len(df) else '새로운측정소', '면적': area * 10014})
-
-            newdf_polygons = pd.DataFrame(data_list)
-            newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
-            newdf_polygons.set_index('측정소명', inplace=True)
-            
-            # 결과 표시
-            t1, t2 = st.tabs(['전체데이터', '면적'])
-            
-            with t1:
-                st.dataframe(newdf_polygons[['면적']], width=600)
-                st.write('새로운 측정소의 좌표:', lat, lon)
-
-            with t2:
-                col1, col2 = st.columns([3,1])
-                with col1:
-                    st.bar_chart(data=newdf_polygons['면적'])
-                    
-                with col2:
-                    m1 = newdf_polygons['면적'].mean()
-                    s1 = newdf_polygons['면적'].std()
-                    st.write(f'면적의 평균: {m1:.2f}')
-                    st.write(f'면적의 표준편차: {s1:.2f}')
-        except Exception as e:
-            st.error(f"Error processing new location: {str(e)}")
-    else:
-        st.warning("새로운 측정소의 위치를 입력해주세요.")
-
-st.write("Debug: End of script")
+        with col2:
+            m1 = newdf_polygons['면적'].mean()
+            s1 = newdf_polygons['면적'].std()
+            st.write(f'면적의 평균: {m1:.2f}')
+            st.write(f'면적의 표준편차: {s1:.2f}')
+        
