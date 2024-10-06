@@ -2,7 +2,7 @@
 pandas
 
 matplotlib
-st-gsheets-connection
+
 
 shapely
 scipy
