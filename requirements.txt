@@ -8,6 +8,6 @@ shapely
 scipy
 geopandas
 streamlit-drawable-canvas==0.8.0
-streamlit==1.11.0
+streamlit
 folium==0.12.1
 streamlit-folium==0.6.15
