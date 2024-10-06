@@ -175,7 +175,7 @@ def create_map_with_voronoi(points, new_point=None):
 
 # 초기 지도 생성
 initial_map = create_map_with_voronoi(points)
-'''
+
 # Streamlit의 session_state를 사용하여 지도 상태를 유지
 if 'map' not in st.session_state:
     st.session_state.map = initial_map
@@ -185,7 +185,7 @@ if 'run' not in st.session_state:
 
 # folium 지도 데이터를 st_folium으로 받음
 map_data = st_folium(st.session_state.map, width=800, height=600)
-
+'''
 # 새로운 좌표를 세션에 저장
 if map_data:
     if map_data['last_active_drawing']:
