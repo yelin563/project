@@ -37,10 +37,5 @@ df.apply(lambda row:Marker(location=[row["병원위도"],row["병원경도"]],ic
                             popup= row['기관명']).add_to(m),axis=1)
 
 map=st_folium(m,width=725,height=400)
-name=map['last_object_clicked_popup']
-if name:
-    st.write(f'{name}의 정보')
-    
-    st.dataframe(df[df['기관명']==name].transpose().dropna(),width=725)
-
+st.dataframe(df)
         
