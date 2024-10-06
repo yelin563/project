@@ -14,7 +14,7 @@ import numpy as np
 from shapely.geometry import MultiPoint, Point, Polygon
 import geopandas as gpd
 from pandas import json_normalize
-from streamlit_gsheets import GSheetsConnection
+
 
 st.set_page_config(layout="wide")
 
