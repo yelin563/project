@@ -37,5 +37,7 @@ df.apply(lambda row:Marker(location=[row["병원위도"],row["병원경도"]],ic
                             popup= row['기관명']).add_to(m),axis=1)
 
 map=st_folium(m,width=725,height=400)
-st.dataframe(df)
+col = df.pop('기관명')  # 'D' 열을 제거하고 저장
+df.insert(1, '기관명', col)
+st.dataframe(df.drop(columns=['응급실운영여부','병원분류','기관ID','응급의료기관코드','응급의료기관코드명']))
         
