@@ -183,25 +183,5 @@ map = st_folium(initial_map, width=800, use_container_width=True)
                 st.write(f'연평균의 평균: {m1:.2f}')
                 st.write(f'연평균의 표준편차: {s1:.2f}')
         
-    
-    st.divider()
-    res4=st.text_area("새로운 측정소의 위치를 어떻게 정했는지 설명해주세요.")
-    
-    if st.button('제출하기'):
-        if st.session_state['name']=='N':
-            st.write('첫 페이지의 위에 학번 이름을 입력해주세요')
-        else:
-            conn = st.connection("gsheets", type=GSheetsConnection)
-            rdf4 = conn.read(
-            worksheet="response4",
-            ttl="1s",
-            usecols=[0, 1,2,3],
-            nrows=100
-            )  
-            rdf4 = rdf4.dropna(axis=0)
-            st.dataframe(rdf4) 
-            new_data=pd.DataFrame({'학번':st.session_state['name'],'답변':res4,'위도':newcoor[1],'경도':newcoor[0]},index=[0])
-            
-            conn.update(worksheet="response4",data=pd.concat([rdf4, new_data], ignore_index=True))   
 
         
