@@ -103,12 +103,12 @@ def voronoi_finite_polygons_2d(vor, radius=None):
 
 @st.cache_data
 def load_data():
-    sido = gpd.read_file('./saves/BND_SIGUNGU_PG/BND_SIGUNGU_PG.shp', encoding='cp949')
+    sido = gpd.read_file('./saves/BND_SIGUNGU_PG/desired_geometry.shp', encoding='cp949')
     sido.crs = "EPSG:5186"
     sido['center_point'] = sido['geometry'].geometry.centroid
     sido['geometry'] = sido['geometry'].to_crs(epsg=4326)
     sido['center_point'] = sido['center_point'].to_crs(epsg=4326)
-    exterior_coords = list(sido['geometry'][10].exterior.coords)
+    exterior_coords = list(sido['geometry'][0].exterior.coords)
     new_coords = [(y, x) for x, y in exterior_coords]
     seoul_poly = Polygon(new_coords)
     
