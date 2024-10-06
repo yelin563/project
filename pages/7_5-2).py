@@ -117,24 +117,10 @@ def load_data():
 
 sido, seoul_poly, df = load_data()
 
-st.header('노원구 응급실로 그린 보로노이 다이어그램')
-st.subheader('만약 노원구에 새로운 응급실을 만들 수 있다면 어디에 세워야 가장 효과적일까요?')
-st.subheader('새로운 응급실 위치를 정해봅시다.')
-
-col1, col2 = st.columns([1, 20])
-with col1:
-    st.image('./saves/marker.png')
-with col2:
-    st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
-
-# 초기 포인트 설정
-points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
-# 서울 중심 좌표 설정
-seoul_center = [37.6456143, 127.0737463]
+@st.cache_resource
 def create_map_with_voronoi(points, new_point=None):
-    m = folium.Map(location=seoul_center, zoom_start=12)
+    m = folium.Map(location=[37.6456143, 127.0737463], zoom_start=12)
     
-    # Draw 플러그인 추가
     draw = Draw(
         draw_options={
             'polyline': False,
@@ -173,36 +159,37 @@ def create_map_with_voronoi(points, new_point=None):
     
     return m
 
-# 초기 지도 생성
-initial_map = create_map_with_voronoi(points)
-# map_data = st_folium(initial_map, width=800, height=600)
-# Streamlit의 session_state를 사용하여 지도 상태를 유지
-if 'map' not in st.session_state:
-    st.session_state.map = initial_map
-if 'run' not in st.session_state:
-    st.session_state.run = 'N'
-# 지도 표시
-mm=st.session_state.map
-# folium 지도 데이터를 st_folium으로 받음
-map_data = st_folium(mm, width=800, height=600)
+# 초기 포인트 설정
+points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
 
-# 새로운 좌표를 세션에 저장
-if map_data:
-    if map_data['last_active_drawing']:
-        st.session_state['new_location'] = map_data['last_active_drawing']['geometry']['coordinates']
-        st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
+st.header('노원구 응급실로 그린 보로노이 다이어그램')
+st.subheader('만약 노원구에 새로운 응급실을 만들 수 있다면 어디에 세워야 가장 효과적일까요?')
+st.subheader('새로운 응급실 위치를 정해봅시다.')
+
+col1, col2 = st.columns([1, 20])
+with col1:
+    st.image('./saves/marker.png')
+with col2:
+    st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
+
+# 지도 생성 및 표시
+map_obj = create_map_with_voronoi(points)
+map_data = st_folium(map_obj, width=800, height=600)
+
+# 새로운 좌표 처리
+new_location = None
+if map_data['last_active_drawing']:
+    new_location = map_data['last_active_drawing']['geometry']['coordinates']
+    st.write('새로운 측정소의 좌표:', new_location[1], new_location[0])
 
 # 실행 버튼 추가
-if st.button('분석 실행') and 'new_location' in st.session_state:
+if st.button('분석 실행') and new_location:
     # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
-    updated_map = create_map_with_voronoi(points, [st.session_state['new_location'][1], st.session_state['new_location'][0]])
-    st.session_state.map = updated_map
-    st.session_state['run'] = 'Y'
-    st.experimental_rerun()
+    updated_map = create_map_with_voronoi(points, [new_location[1], new_location[0]])
+    st_folium(updated_map, width=800, height=600)
 
-# 면적 계산 및 결과 표시
-if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
-    new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
+    # 면적 계산 및 결과 표시
+    new_point = [new_location[1], new_location[0]]
     vor = Voronoi(np.vstack([points, new_point]))
     regions, vertices = voronoi_finite_polygons_2d(vor)
     
@@ -216,10 +203,6 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
 
     newdf_polygons = pd.DataFrame(data_list)
     newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
-    
-    
-
-    # 측정소명을 인덱스로 설정
     newdf_polygons.set_index('측정소명', inplace=True)
     
     # 결과 표시
@@ -227,7 +210,7 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
     
     with t1:
         st.dataframe(newdf_polygons[['면적']], width=600)
-        st.write('새로운 측정소의 좌표:', st.session_state['new_location'][1], st.session_state['new_location'][0])
+        st.write('새로운 측정소의 좌표:', new_location[1], new_location[0])
 
     with t2:
         col1, col2 = st.columns([3,1])
@@ -239,4 +222,3 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
             s1 = newdf_polygons['면적'].std()
             st.write(f'면적의 평균: {m1:.2f}')
             st.write(f'면적의 표준편차: {s1:.2f}')
-        
