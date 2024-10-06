@@ -42,7 +42,3 @@ folium_static(m)
 
 st.write("왼쪽의 다양한 도구들을 이용하여 우리 학교에서 다치면 어떤 응급실을 가야 할지 결정해보고 학습지에 적어주세요.")
 
-
-        new_data=pd.DataFrame({'학번':st.session_state['name'],'답변':res3},index=[0])
-        
-        conn.update(worksheet="response3",data=pd.concat([rdf3, new_data], ignore_index=True))
