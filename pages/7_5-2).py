@@ -239,9 +239,24 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
             st.write(f'면적의 표준편차: {s1:.2f}')
             
             # Add information about the new measurement station
-            new_station_area = newdf_polygons.loc['새로운측정소', '면적']
-            st.write(f'새로운 측정소의 면적: {new_station_area:.2f}')
-            
-            # Calculate and display the difference from the mean
-            diff_from_mean = new_station_area - m1
-            st.write(f'평균과의 차이: {diff_from_mean:.2f}')
+            if '새로운측정소' in newdf_polygons.index:
+                new_station_area = newdf_polygons.loc['새로운측정소', '면적']
+                st.write(f'새로운 측정소의 면적: {new_station_area:.2f}')
+                
+                # Calculate and display the difference from the mean
+                diff_from_mean = new_station_area - m1
+                st.write(f'평균과의 차이: {diff_from_mean:.2f}')
+            else:
+                st.write('새로운 측정소가 아직 추가되지 않았습니다.')
+
+# ShapelyDeprecationWarning 해결을 위한 수정
+for region in regions:
+    polygon = vertices[region]
+    p1 = Polygon(polygon)
+    p = seoul_poly.intersection(p1)
+    if not p.is_empty:
+        if p.geom_type == 'MultiPolygon':
+            for poly in p.geoms:
+                folium.Polygon(locations=poly.exterior.coords, color='blue', fill=True, fill_opacity=0.3).add_to(m)
+        else:
+            folium.Polygon(locations=p.exterior.coords, color='blue', fill=True, fill_opacity=0.3).add_to(m)
