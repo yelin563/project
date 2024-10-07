@@ -117,25 +117,16 @@ def load_data():
 
 sido, seoul_poly, df = load_data()
 
-st.header('노원구 응급실로 그린 보로노이 다이어그램')
-st.subheader('만약 노원구에 새로운 응급실을 만들 수 있다면 어디에 세워야 가장 효과적일까요?')
-st.subheader('새로운 응급실 위치를 정해봅시다.')
-
-col1, col2 = st.columns([1, 20])
-with col1:
-    st.image('./saves/marker.png')
-with col2:
-    st.write(' 를 눌러 새로운 응급실의 위치를 정하고 면적 등을 고려하여 최적의 위치를 정해보세요!')
-
 # 초기 포인트 설정
 points = df[df['주소'].str.contains('노원')][['병원위도', '병원경도']].to_numpy()
 # 서울 중심 좌표 설정
 seoul_center = [37.6456143, 127.0737463]
+
 def create_map_with_voronoi(points, new_point=None):
     m = folium.Map(location=seoul_center, zoom_start=12)
     
     # Draw 플러그인 추가
-    draw = Draw(
+    draw = folium.plugins.Draw(
         draw_options={
             'polyline': False,
             'rectangle': False,
@@ -159,7 +150,7 @@ def create_map_with_voronoi(points, new_point=None):
         p1 = Polygon(polygon)
         p = seoul_poly.intersection(p1)
         if not p.is_empty:
-            if p.type == 'MultiPolygon':
+            if p.geom_type == 'MultiPolygon':
                 for poly in p.geoms:
                     folium.Polygon(locations=poly.exterior.coords, color='blue', fill=True, fill_opacity=0.3).add_to(m)
             else:
@@ -174,16 +165,12 @@ def create_map_with_voronoi(points, new_point=None):
     return m
 
 # 초기 지도 생성
-initial_map = create_map_with_voronoi(points)
-# map_data = st_folium(initial_map, width=800, height=600)
-# Streamlit의 session_state를 사용하여 지도 상태를 유지
 if 'map' not in st.session_state:
-    st.session_state.map = initial_map
+    st.session_state.map = create_map_with_voronoi(points)
 if 'run' not in st.session_state:
     st.session_state.run = 'N'
-# 지도 표시
 
-# folium 지도 데이터를 st_folium으로 받음
+# 지도 표시
 map_data = st_folium(st.session_state.map, width=800, height=600)
 
 # 새로운 좌표를 세션에 저장
@@ -195,14 +182,11 @@ if map_data:
 # 실행 버튼 추가
 if st.button('분석 실행') and 'new_location' in st.session_state:
     # 새로운 측정소를 포함한 Voronoi 다이어그램 계산 및 시각화
-    updated_map = create_map_with_voronoi(points, [st.session_state['new_location'][1], st.session_state['new_location'][0]])
+    new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
+    updated_map = create_map_with_voronoi(points, new_point)
     st.session_state.map = updated_map
     st.session_state['run'] = 'Y'
-    st.rerun()
-
-# 면적 계산 및 결과 표시
-if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
-    new_point = [st.session_state['new_location'][1], st.session_state['new_location'][0]]
+    
     vor = Voronoi(np.vstack([points, new_point]))
     regions, vertices = voronoi_finite_polygons_2d(vor)
     
@@ -249,14 +233,4 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
             else:
                 st.write('새로운 측정소가 아직 추가되지 않았습니다.')
 
-# ShapelyDeprecationWarning 해결을 위한 수정
-for region in regions:
-    polygon = vertices[region]
-    p1 = Polygon(polygon)
-    p = seoul_poly.intersection(p1)
-    if not p.is_empty:
-        if p.geom_type == 'MultiPolygon':
-            for poly in p.geoms:
-                folium.Polygon(locations=poly.exterior.coords, color='blue', fill=True, fill_opacity=0.3).add_to(m)
-        else:
-            folium.Polygon(locations=p.exterior.coords, color='blue', fill=True, fill_opacity=0.3).add_to(m)
+    st.rerun()
