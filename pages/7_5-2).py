@@ -217,8 +217,6 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
     newdf_polygons = pd.DataFrame(data_list)
     newdf_polygons['면적'] = newdf_polygons['면적'].astype(int)
     
-    
-
     # 측정소명을 인덱스로 설정
     newdf_polygons.set_index('측정소명', inplace=True)
     
@@ -239,4 +237,11 @@ if st.session_state.get('run') == 'Y' and 'new_location' in st.session_state:
             s1 = newdf_polygons['면적'].std()
             st.write(f'면적의 평균: {m1:.2f}')
             st.write(f'면적의 표준편차: {s1:.2f}')
-        
+            
+            # Add information about the new measurement station
+            new_station_area = newdf_polygons.loc['새로운측정소', '면적']
+            st.write(f'새로운 측정소의 면적: {new_station_area:.2f}')
+            
+            # Calculate and display the difference from the mean
+            diff_from_mean = new_station_area - m1
+            st.write(f'평균과의 차이: {diff_from_mean:.2f}')
